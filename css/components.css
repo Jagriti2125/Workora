@@ -14,19 +14,27 @@
 
 /* Navigation links */
 .sidebar nav a {
+  display: block;
   text-decoration: none;
   color: var(--color-muted);
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 10px;
   font-size: 14px;
-  transition: 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-/* Hover effect */
 .sidebar nav a:hover {
-  background-color: #eeeeff;
+  background: #F0EAF5;
   color: var(--color-primary);
 }
+
+.sidebar nav a.active {
+  background: #EAE3F2;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 
 /* Welcome section */
 .welcome-section {
@@ -113,10 +121,6 @@
   font-size: 14px;
 }
 
-.sidebar nav a.active {
-  background-color: #eeeeff;
-  color: var(--color-primary);
-}
 
 /* Modal overlay */
 .modal {
@@ -206,30 +210,29 @@
   display: none;
 }
 
-/* Workspace Card */
 .workspace-card {
-  background-color: var(--color-surface);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 24px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .workspace-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 20px rgba(36, 36, 56, 0.08);
+  transform: translateY(-2px);
 }
 
 .workspace-card h3 {
   font-size: 18px;
-  margin-bottom: 10px;
   color: var(--color-text);
+  margin-bottom: 10px;
 }
 
 .workspace-card p {
   font-size: 14px;
   color: var(--color-muted);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .workspace-actions {
@@ -255,4 +258,23 @@
 
 .workspace-actions button:last-child {
   color: #dc4545;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+
+.brand-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-icon {
+  color: var(--color-primary);
+  font-family: var(--font-primary);
+  font-size: 24px;
 }

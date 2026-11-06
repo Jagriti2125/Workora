@@ -1,15 +1,24 @@
 /* Shared design tokens. */
 :root {
-  /* Colors */
-  --color-primary: #5556c9;
-  --color-background: #f7f7fa;
-  --color-surface: #ffffff;
-  --color-text: #242438;
-  --color-muted: #77778a;
-  --color-border: #e5e5eb;
+  /* Brand Colors */
+  --color-primary: #8B7BAE;
+  --color-primary-hover: #766697;
+
+  /* Background Colors */
+  --color-background: #F6F1E9;
+  --color-surface: #FFFCF8;
+
+  /* Text Colors */
+  --color-text: #514B5E;
+  --color-muted: #898394;
+
+  /* Accent Colors */
+  --color-accent: #A9B5A0;
+  --color-border: #E8E1E8;
 
   /* Typography */
-  --font-primary: Arial, sans-serif;
+ --font-primary: "DM Sans", sans-serif;
+--font-heading: "DM Serif Display", serif;
 
   /* Spacing */
   --spacing-sm: 8px;
