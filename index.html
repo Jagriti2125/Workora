@@ -80,7 +80,47 @@
   </section>
 
 </main>
+<!-- Create Workspace Modal -->
+<div id="workspace-modal" class="modal" hidden>
 
+  <div class="modal-content">
+
+    <h2>Create Workspace</h2>
+    <p>Create a dedicated space for your work.</p>
+
+    <form id="workspace-form">
+
+      <label for="workspace-name">Workspace Name</label>
+      <input
+        type="text"
+        id="workspace-name"
+        placeholder="e.g. DSA Preparation"
+        maxlength="50"
+        required
+      />
+
+      <label for="workspace-description">Description</label>
+      <textarea
+        id="workspace-description"
+        placeholder="What is this workspace about?"
+        maxlength="200"
+      ></textarea>
+
+      <div class="modal-actions">
+        <button type="button" id="cancel-workspace">
+          Cancel
+        </button>
+
+        <button type="submit" class="primary-button">
+          Create Workspace
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
   </div>
 
 </div>
