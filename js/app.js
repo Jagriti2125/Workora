@@ -6,6 +6,7 @@ const savedWorkspaces = localStorage.getItem("workora-workspaces");
 const workspaces = savedWorkspaces
   ? JSON.parse(savedWorkspaces)
   : [];
+  let editingWorkspaceId = null;
 
 // Select page elements
 const dashboardPage = document.querySelector("#dashboard-page");
@@ -96,10 +97,59 @@ function renderWorkspaces() {
 
     card.classList.add("workspace-card");
 
-    card.innerHTML = `
-      <h3>${workspace.name}</h3>
-      <p>${workspace.description || "No description provided."}</p>
-    `;
+  const title = document.createElement("h3");
+title.textContent = workspace.name;
+
+const description = document.createElement("p");
+description.textContent = workspace.description || "No description provided.";
+
+card.appendChild(title);
+card.appendChild(description);
+
+const actions = document.createElement("div");
+actions.classList.add("workspace-actions");
+
+const editButton = document.createElement("button");
+editButton.textContent = "Edit";
+editButton.dataset.id = workspace.id;
+
+editButton.addEventListener("click", function () {
+  editingWorkspaceId = workspace.id;
+
+  workspaceNameInput.value = workspace.name;
+  workspaceDescriptionInput.value = workspace.description;
+
+  workspaceModal.hidden = false;
+});
+
+const deleteButton = document.createElement("button");
+
+deleteButton.textContent = "Delete";
+deleteButton.dataset.id = workspace.id;
+deleteButton.addEventListener("click", function () {
+  const confirmDelete = confirm(
+    `Are you sure you want to delete "${workspace.name}"?`
+  );
+
+  if (!confirmDelete) {
+    return;
+  }
+
+  const workspaceIndex = workspaces.findIndex(function (item) {
+    return item.id === workspace.id;
+  });
+
+  workspaces.splice(workspaceIndex, 1);
+
+  localStorage.setItem("workora-workspaces", JSON.stringify(workspaces));
+
+  renderWorkspaces();
+});
+
+actions.appendChild(editButton);
+actions.appendChild(deleteButton);
+
+card.appendChild(actions);
 
     workspaceGrid.appendChild(card);
 
@@ -121,6 +171,16 @@ if (workspaceName === "") {
   return;
 }
 
+  if (editingWorkspaceId) {
+  const workspace = workspaces.find(function (item) {
+    return item.id === editingWorkspaceId;
+  });
+
+  workspace.name = workspaceName;
+  workspace.description = workspaceDescription;
+  workspace.updatedAt = new Date().toISOString();
+
+} else {
   const workspace = {
     id: crypto.randomUUID(),
     name: workspaceName,
@@ -131,6 +191,7 @@ if (workspaceName === "") {
   };
 
   workspaces.push(workspace);
+}
   // Save workspaces in browser storage
 localStorage.setItem("workora-workspaces", JSON.stringify(workspaces));
 
@@ -140,6 +201,7 @@ renderWorkspaces();
 // Close modal and clear form
 workspaceModal.hidden = true;
 workspaceForm.reset();
+editingWorkspaceId = null;
 });
 // Display previously saved workspaces on page load
 renderWorkspaces();
