@@ -278,3 +278,11 @@ h3 {
   font-family: var(--font-primary);
   font-size: 24px;
 }
+.dashboard-intro {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  color: var(--color-text);
+  margin-top: 8px;
+  margin-bottom: 24px;
+  line-height: 1.4;
+}

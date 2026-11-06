@@ -12,6 +12,9 @@ const workspaces = savedWorkspaces
 const dashboardPage = document.querySelector("#dashboard-page");
 const workspacesPage = document.querySelector("#workspaces-page");
 const pageTitle = document.querySelector("#page-title");
+const greeting = document.querySelector("#greeting");
+const currentDate = document.querySelector("#current-date");
+const pageSubtitle = document.querySelector("#page-subtitle");
 const workspaceGrid = document.querySelector("#workspace-grid");
 const workspaceEmptyState = document.querySelector("#workspace-empty-state");
 
@@ -30,6 +33,30 @@ const workspaceDescriptionInput = document.querySelector("#workspace-description
 // Select navigation links
 const navLinks = document.querySelectorAll(".sidebar nav a");
 
+function updateGreeting() {
+  const currentHour = new Date().getHours();
+
+  if (currentHour < 12) {
+    greeting.textContent = "Good morning!";
+  } else if (currentHour < 17) {
+    greeting.textContent = "Good afternoon!";
+  } else {
+    greeting.textContent = "Good evening!";
+  }
+}
+
+function updateDate() {
+  const today = new Date();
+
+  const formattedDate = today.toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  currentDate.textContent = formattedDate;
+}
 // Function to show a page
 function showPage(pageName) {
 
@@ -40,6 +67,9 @@ function showPage(pageName) {
 
   // Update header
   pageTitle.textContent = isDashboard ? "Dashboard" : "Workspaces";
+  pageSubtitle.textContent = isDashboard
+  ? "A little progress every day."
+  : "Everything has its own place.";
 
   // Update active navigation
   navLinks.forEach(function (link, index) {
@@ -80,6 +110,8 @@ workspaceSubmitButton.textContent = "Create Workspace";
 
 // Show dashboard when Workora starts
 showPage("dashboard");
+updateGreeting();
+updateDate();
 
 // Display workspace cards
 function renderWorkspaces() {
