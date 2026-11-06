@@ -1,0 +1,21 @@
+/* Shared design tokens. */
+:root {
+  /* Colors */
+  --color-primary: #5556c9;
+  --color-background: #f7f7fa;
+  --color-surface: #ffffff;
+  --color-text: #242438;
+  --color-muted: #77778a;
+  --color-border: #e5e5eb;
+
+  /* Typography */
+  --font-primary: Arial, sans-serif;
+
+  /* Spacing */
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+
+  /* Layout */
+  --sidebar-width: 240px;
+}
