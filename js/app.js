@@ -20,6 +20,10 @@ const workspaceModal = document.querySelector("#workspace-modal");
 const createWorkspaceButton = document.querySelector(".page-heading .primary-button");
 const cancelWorkspaceButton = document.querySelector("#cancel-workspace");
 const workspaceForm = document.querySelector("#workspace-form");
+const workspaceSubmitButton = workspaceForm.querySelector(
+  'button[type="submit"]'
+);
+
 const workspaceNameInput = document.querySelector("#workspace-name");
 const workspaceDescriptionInput = document.querySelector("#workspace-description");
 
@@ -70,6 +74,8 @@ createWorkspaceButton.addEventListener("click", function () {
 cancelWorkspaceButton.addEventListener("click", function () {
   workspaceModal.hidden = true;
   workspaceForm.reset();
+  editingWorkspaceId = null;
+workspaceSubmitButton.textContent = "Create Workspace";
 });
 
 // Show dashboard when Workora starts
@@ -115,6 +121,7 @@ editButton.dataset.id = workspace.id;
 
 editButton.addEventListener("click", function () {
   editingWorkspaceId = workspace.id;
+  workspaceSubmitButton.textContent = "Update Workspace";
 
   workspaceNameInput.value = workspace.name;
   workspaceDescriptionInput.value = workspace.description;
@@ -170,6 +177,18 @@ if (workspaceName === "") {
   workspaceNameInput.focus();
   return;
 }
+const duplicateWorkspace = workspaces.find(function (item) {
+  return (
+    item.name.toLowerCase() === workspaceName.toLowerCase() &&
+    item.id !== editingWorkspaceId
+  );
+});
+
+if (duplicateWorkspace) {
+  alert("A workspace with this name already exists.");
+  workspaceNameInput.focus();
+  return;
+}
 
   if (editingWorkspaceId) {
   const workspace = workspaces.find(function (item) {
@@ -202,6 +221,7 @@ renderWorkspaces();
 workspaceModal.hidden = true;
 workspaceForm.reset();
 editingWorkspaceId = null;
+workspaceSubmitButton.textContent = "Create Workspace";
 });
 // Display previously saved workspaces on page load
 renderWorkspaces();
