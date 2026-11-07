@@ -11,6 +11,20 @@ const workspaces = savedWorkspaces
 // Select page elements
 const dashboardPage = document.querySelector("#dashboard-page");
 const workspacesPage = document.querySelector("#workspaces-page");
+const workspaceDetailPage = document.querySelector(
+  "#workspace-detail-page"
+);
+const detailWorkspaceName = document.querySelector(
+  "#detail-workspace-name"
+);
+
+const detailWorkspaceDescription = document.querySelector(
+  "#detail-workspace-description"
+);
+
+const backToWorkspacesButton = document.querySelector(
+  "#back-to-workspaces"
+);
 const pageTitle = document.querySelector("#page-title");
 const greeting = document.querySelector("#greeting");
 const currentDate = document.querySelector("#current-date");
@@ -62,31 +76,37 @@ function updateDate() {
 }
 // Function to show a page
 function showPage(pageName) {
-
   const isDashboard = pageName === "dashboard";
+  const isWorkspaces = pageName === "workspaces";
+  const isDetail = pageName === "detail";
 
   dashboardPage.hidden = !isDashboard;
-  workspacesPage.hidden = isDashboard;
+  workspacesPage.hidden = !isWorkspaces;
+  workspaceDetailPage.hidden = !isDetail;
 
   // Update header
-  pageTitle.textContent = isDashboard ? "Dashboard" : "Workspaces";
+  pageTitle.textContent = isDashboard
+    ? "Dashboard"
+    : isWorkspaces
+    ? "Workspaces"
+    : "Workspace";
+
   pageSubtitle.textContent = isDashboard
-  ? "A little progress every day."
-  : "Everything has its own place.";
+    ? "A little progress every day."
+    : isWorkspaces
+    ? "Everything has its own place."
+    : "Your dedicated space for getting things done.";
 
   // Update active navigation
   navLinks.forEach(function (link, index) {
-
     if (index === 0 && isDashboard) {
       link.classList.add("active");
-    } else if (index === 1 && !isDashboard) {
+    } else if (index === 1 && isWorkspaces) {
       link.classList.add("active");
     } else {
       link.classList.remove("active");
     }
-
   });
-
 }
 // Connect navigation links
 navLinks[0].addEventListener("click", function (event) {
@@ -96,6 +116,9 @@ navLinks[0].addEventListener("click", function (event) {
 
 navLinks[1].addEventListener("click", function (event) {
   event.preventDefault();
+  showPage("workspaces");
+});
+backToWorkspacesButton.addEventListener("click", function () {
   showPage("workspaces");
 });
 
@@ -111,7 +134,13 @@ cancelWorkspaceButton.addEventListener("click", function () {
 workspaceSubmitButton.textContent = "Create Workspace";
 });
 exploreWorkspacesButton.addEventListener("click", function () {
-  showPage("workspaces");
+  const latestWorkspace = getLatestWorkspace();
+
+  if (latestWorkspace) {
+    openWorkspace(latestWorkspace);
+  } else {
+    showPage("workspaces");
+  }
 });
 
 // Show dashboard when Workora starts
@@ -130,6 +159,14 @@ function getLatestWorkspace() {
   });
 
   return sortedWorkspaces[0];
+}
+function openWorkspace(workspace) {
+  detailWorkspaceName.textContent = workspace.name;
+
+  detailWorkspaceDescription.textContent =
+    workspace.description || "No description provided.";
+
+  showPage("detail");
 }
 
 function renderContinueWorking() {
@@ -168,6 +205,9 @@ function renderWorkspaces() {
     const card = document.createElement("div");
 
     card.classList.add("workspace-card");
+    card.addEventListener("click", function () {
+  openWorkspace(workspace);
+});
 
   const title = document.createElement("h3");
 title.textContent = workspace.name;
@@ -185,7 +225,8 @@ const editButton = document.createElement("button");
 editButton.textContent = "Edit";
 editButton.dataset.id = workspace.id;
 
-editButton.addEventListener("click", function () {
+editButton.addEventListener("click", function (event) {
+  event.stopPropagation();
   editingWorkspaceId = workspace.id;
   workspaceSubmitButton.textContent = "Update Workspace";
 
@@ -199,7 +240,8 @@ const deleteButton = document.createElement("button");
 
 deleteButton.textContent = "Delete";
 deleteButton.dataset.id = workspace.id;
-deleteButton.addEventListener("click", function () {
+deleteButton.addEventListener("click", function (event) {
+  event.stopPropagation();
   const confirmDelete = confirm(
     `Are you sure you want to delete "${workspace.name}"?`
   );
