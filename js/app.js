@@ -34,6 +34,7 @@ const continueTitle = document.querySelector("#continue-title");
 const continueDescription = document.querySelector("#continue-description");
 const workspaceGrid = document.querySelector("#workspace-grid");
 const workspaceEmptyState = document.querySelector("#workspace-empty-state");
+const continueUpdated = document.querySelector("#continue-updated");
 
 // Select modal elements
 const workspaceModal = document.querySelector("#workspace-modal");
@@ -43,7 +44,9 @@ const workspaceForm = document.querySelector("#workspace-form");
 const workspaceSubmitButton = workspaceForm.querySelector(
   'button[type="submit"]'
 );
-
+const workspaceModalTitle = document.querySelector(
+  "#workspace-modal-title"
+);
 const workspaceNameInput = document.querySelector("#workspace-name");
 const workspaceDescriptionInput = document.querySelector("#workspace-description");
 
@@ -124,6 +127,11 @@ backToWorkspacesButton.addEventListener("click", function () {
 
 // Open workspace modal
 createWorkspaceButton.addEventListener("click", function () {
+  workspaceModalTitle.textContent = "Create Workspace";
+  workspaceSubmitButton.textContent = "Create Workspace";
+  workspaceForm.reset();
+  editingWorkspaceId = null;
+
   workspaceModal.hidden = false;
 });
 // Close workspace modal
@@ -173,6 +181,7 @@ function renderContinueWorking() {
   const latestWorkspace = getLatestWorkspace();
 
   if (!latestWorkspace) {
+    continueUpdated.textContent = "Your workspace awaits";
     continueTitle.textContent = "Pick up where you left off";
     continueDescription.textContent =
       "Your next productive session is just one click away.";
@@ -182,7 +191,16 @@ function renderContinueWorking() {
   continueTitle.textContent = latestWorkspace.name;
   continueDescription.textContent =
     latestWorkspace.description || "Your workspace is ready to continue.";
+
+    continueUpdated.textContent = `Last updated ${new Date(
+    latestWorkspace.updatedAt
+  ).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  })}`;
 }
+
 
 // Display workspace cards
 function renderWorkspaces() {
@@ -215,8 +233,20 @@ title.textContent = workspace.name;
 const description = document.createElement("p");
 description.textContent = workspace.description || "No description provided.";
 
+const updatedDate = document.createElement("span");
+updatedDate.classList.add("workspace-updated");
+
+updatedDate.textContent = `Updated ${new Date(
+  workspace.updatedAt
+).toLocaleDateString("en-IN", {
+  day: "numeric",
+  month: "short",
+  year: "numeric"
+})}`;
+
 card.appendChild(title);
 card.appendChild(description);
+card.appendChild(updatedDate);
 
 const actions = document.createElement("div");
 actions.classList.add("workspace-actions");
@@ -228,6 +258,7 @@ editButton.dataset.id = workspace.id;
 editButton.addEventListener("click", function (event) {
   event.stopPropagation();
   editingWorkspaceId = workspace.id;
+  workspaceModalTitle.textContent = "Edit Workspace";
   workspaceSubmitButton.textContent = "Update Workspace";
 
   workspaceNameInput.value = workspace.name;
