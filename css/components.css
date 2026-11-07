@@ -42,31 +42,74 @@
 }
 
 /* Continue working card */
+/* Continue working card */
 .continue-card {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: var(--spacing-lg);
+  background: linear-gradient(
+    135deg,
+    #EAE3F2,
+    #F3EDF5
+  );
+  border: 1px solid #E3D9EC;
+  border-radius: 18px;
+  padding: 30px;
+  margin-top: 24px;
+}
+
+.continue-card-content {
+  max-width: 650px;
 }
 
 /* Card label */
 .card-label {
   color: var(--color-primary);
+  font-family: var(--font-primary);
   font-size: 12px;
-  font-weight: bold;
-  margin-bottom: var(--spacing-sm);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 18px;
 }
 
 /* Card heading */
 .continue-card h2 {
-  font-size: 20px;
-  margin-bottom: var(--spacing-sm);
+  font-size: 28px;
+  margin-bottom: 10px;
 }
 
 /* Card description */
-.continue-card p:last-child {
+.continue-description {
   color: var(--color-muted);
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+/* Card footer */
+.continue-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.last-accessed {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Resume button */
+.resume-button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 9px;
+  padding: 11px 18px;
+  font-family: var(--font-primary);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.resume-button:hover {
+  background: var(--color-primary-hover);
 }
 
 /* Page heading */

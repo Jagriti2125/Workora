@@ -15,6 +15,9 @@ const pageTitle = document.querySelector("#page-title");
 const greeting = document.querySelector("#greeting");
 const currentDate = document.querySelector("#current-date");
 const pageSubtitle = document.querySelector("#page-subtitle");
+const exploreWorkspacesButton = document.querySelector(".resume-button");
+const continueTitle = document.querySelector("#continue-title");
+const continueDescription = document.querySelector("#continue-description");
 const workspaceGrid = document.querySelector("#workspace-grid");
 const workspaceEmptyState = document.querySelector("#workspace-empty-state");
 
@@ -107,11 +110,42 @@ cancelWorkspaceButton.addEventListener("click", function () {
   editingWorkspaceId = null;
 workspaceSubmitButton.textContent = "Create Workspace";
 });
+exploreWorkspacesButton.addEventListener("click", function () {
+  showPage("workspaces");
+});
 
 // Show dashboard when Workora starts
 showPage("dashboard");
 updateGreeting();
 updateDate();
+
+
+function getLatestWorkspace() {
+  if (workspaces.length === 0) {
+    return null;
+  }
+
+  const sortedWorkspaces = [...workspaces].sort(function (a, b) {
+    return new Date(b.updatedAt) - new Date(a.updatedAt);
+  });
+
+  return sortedWorkspaces[0];
+}
+
+function renderContinueWorking() {
+  const latestWorkspace = getLatestWorkspace();
+
+  if (!latestWorkspace) {
+    continueTitle.textContent = "Pick up where you left off";
+    continueDescription.textContent =
+      "Your next productive session is just one click away.";
+    return;
+  }
+
+  continueTitle.textContent = latestWorkspace.name;
+  continueDescription.textContent =
+    latestWorkspace.description || "Your workspace is ready to continue.";
+}
 
 // Display workspace cards
 function renderWorkspaces() {
@@ -183,6 +217,7 @@ deleteButton.addEventListener("click", function () {
   localStorage.setItem("workora-workspaces", JSON.stringify(workspaces));
 
   renderWorkspaces();
+  renderContinueWorking();
 });
 
 actions.appendChild(editButton);
@@ -248,6 +283,7 @@ localStorage.setItem("workora-workspaces", JSON.stringify(workspaces));
 
 console.log("All Workspaces:", workspaces);
 renderWorkspaces();
+renderContinueWorking();
 
 // Close modal and clear form
 workspaceModal.hidden = true;
@@ -257,3 +293,4 @@ workspaceSubmitButton.textContent = "Create Workspace";
 });
 // Display previously saved workspaces on page load
 renderWorkspaces();
+renderContinueWorking();
