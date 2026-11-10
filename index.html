@@ -143,12 +143,29 @@
 
 </div>
 
-  <div class="feature-card">
-    <span class="feature-icon">📝</span>
-    <h2>Notes</h2>
-    <p>Capture ideas, thoughts and important information.</p>
-    <span class="feature-status">Coming soon</span>
+  <div class="notes-section">
+
+  <div class="notes-section-header">
+    <div>
+      <h2>My Notes</h2>
+      <p>Capture your thoughts, ideas and learning notes.</p>
+    </div>
+
+    <button id="add-note-button" class="primary-button" type="button">
+      + Add Note
+    </button>
   </div>
+
+  <div id="notes-grid" class="notes-grid">
+    <!-- Note cards will appear here -->
+  </div>
+
+  <div id="notes-empty-state" class="empty-state">
+    <h2>No notes yet</h2>
+    <p>Create your first note to get started.</p>
+  </div>
+
+</div>
 
   <div class="feature-card">
     <span class="feature-icon">✓</span>
@@ -252,7 +269,54 @@
 
   </div>
 </div>
+<!-- Add Note Modal -->
+<div id="note-modal" class="modal" hidden>
+  <div class="modal-content">
 
+    <h2 id="note-modal-title">Add Note</h2>
+    <p>Capture your thoughts and ideas.</p>
+
+    <form id="note-form">
+
+      <label for="note-title">Note Title</label>
+      <input
+        type="text"
+        id="note-title"
+        placeholder="e.g. JavaScript Functions"
+        maxlength="80"
+        required
+      />
+
+      <label>Note Content</label>
+
+      <div class="editor-toolbar">
+        <button type="button" data-command="bold"><b>B</b></button>
+        <button type="button" data-command="italic"><i>I</i></button>
+        <button type="button" data-command="underline"><u>U</u></button>
+        <button type="button" data-command="formatBlock" data-value="h3">H</button>
+        <button type="button" data-command="insertUnorderedList">• List</button>
+        <button type="button" data-command="insertOrderedList">1. List</button>
+      </div>
+
+      <div
+        id="note-editor"
+        class="note-editor"
+        contenteditable="true"
+        role="textbox"
+        aria-multiline="true"
+        data-placeholder="Start writing your notes..."
+      ></div>
+
+      <div class="modal-actions">
+        <button type="button" id="cancel-note">Cancel</button>
+        <button type="submit" class="primary-button">
+          Save Note
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
   </div>
 </div>
   </body>
