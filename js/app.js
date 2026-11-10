@@ -6,8 +6,24 @@ const savedWorkspaces = localStorage.getItem("workora-workspaces");
 const workspaces = savedWorkspaces
   ? JSON.parse(savedWorkspaces)
   : [];
-  let editingWorkspaceId = null;
 
+// Save workspaces to localStorage
+function saveWorkspaces() {
+  localStorage.setItem("workora-workspaces", JSON.stringify(workspaces));
+}
+
+let editingWorkspaceId = null;
+let activeWorkspaceId = null;
+let editingResourceId = null;
+
+// Load saved resources
+const savedResources = localStorage.getItem("workora-resources");
+const resources = savedResources ? JSON.parse(savedResources) : [];
+
+// Save resources to localStorage
+function saveResources() {
+  localStorage.setItem("workora-resources", JSON.stringify(resources));
+}
 // Select page elements
 const dashboardPage = document.querySelector("#dashboard-page");
 const workspacesPage = document.querySelector("#workspaces-page");
@@ -35,6 +51,8 @@ const continueDescription = document.querySelector("#continue-description");
 const workspaceGrid = document.querySelector("#workspace-grid");
 const workspaceEmptyState = document.querySelector("#workspace-empty-state");
 const continueUpdated = document.querySelector("#continue-updated");
+const resourceGrid = document.querySelector("#resource-grid");
+const resourceEmptyState = document.querySelector("#resource-empty-state");
 
 // Select modal elements
 const workspaceModal = document.querySelector("#workspace-modal");
@@ -49,6 +67,15 @@ const workspaceModalTitle = document.querySelector(
 );
 const workspaceNameInput = document.querySelector("#workspace-name");
 const workspaceDescriptionInput = document.querySelector("#workspace-description");
+// Select resource modal elements
+const resourceModal = document.querySelector("#resource-modal");
+const resourceModalTitle = document.querySelector("#resource-modal-title");
+const addResourceButton = document.querySelector("#add-resource-button");
+const cancelResourceButton = document.querySelector("#cancel-resource");
+const resourceForm = document.querySelector("#resource-form");
+const resourceTitleInput = document.querySelector("#resource-title");
+const resourceUrlInput = document.querySelector("#resource-url");
+const resourceDescriptionInput = document.querySelector("#resource-description");
 
 // Select navigation links
 const navLinks = document.querySelectorAll(".sidebar nav a");
@@ -141,6 +168,81 @@ cancelWorkspaceButton.addEventListener("click", function () {
   editingWorkspaceId = null;
 workspaceSubmitButton.textContent = "Create Workspace";
 });
+// Open resource modal
+addResourceButton.addEventListener("click", function () {
+  editingResourceId = null;
+  resourceForm.reset();
+
+  resourceModalTitle.textContent = "Add Resource";
+  resourceModal.querySelector('button[type="submit"]').textContent = "Save Resource";
+
+  resourceModal.hidden = false;
+});
+// Close resource modal
+cancelResourceButton.addEventListener("click", function () {
+  resourceModal.hidden = true;
+  resourceForm.reset();
+});
+// Add a new resource
+resourceForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const title = resourceTitleInput.value.trim();
+  const url = resourceUrlInput.value.trim();
+  const description = resourceDescriptionInput.value.trim();
+  if (!title) {
+  alert("Please enter a resource title.");
+  return;
+}
+let parsedUrl;
+
+try {
+  parsedUrl = new URL(url);
+} catch {
+  alert("Please enter a valid URL.");
+  return;
+}
+
+if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+  alert("Only HTTP and HTTPS links are allowed.");
+  return;
+}
+
+  if (editingResourceId) {
+  const resourceToUpdate = resources.find(function (resource) {
+    return resource.id === editingResourceId;
+  });
+
+  if (resourceToUpdate) {
+    resourceToUpdate.title = title;
+    resourceToUpdate.url = url;
+    resourceToUpdate.description = description;
+    resourceToUpdate.updatedAt = new Date().toISOString();
+    saveResources();
+  }
+
+  editingResourceId = null;
+
+} else {
+  const resource = {
+    id: crypto.randomUUID(),
+    workspaceId: activeWorkspaceId,
+    title: title,
+    url: url,
+    description: description,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  resources.push(resource);
+  saveResources();
+}
+
+  renderResources();
+
+  resourceModal.hidden = true;
+  resourceForm.reset();
+});
 exploreWorkspacesButton.addEventListener("click", function () {
   const latestWorkspace = getLatestWorkspace();
 
@@ -169,12 +271,99 @@ function getLatestWorkspace() {
   return sortedWorkspaces[0];
 }
 function openWorkspace(workspace) {
+  activeWorkspaceId = workspace.id;
   detailWorkspaceName.textContent = workspace.name;
 
   detailWorkspaceDescription.textContent =
     workspace.description || "No description provided.";
 
   showPage("detail");
+  renderResources();
+}
+function renderResources() {
+  // Get resources belonging to the active workspace
+  const workspaceResources = resources.filter(function (resource) {
+    return resource.workspaceId === activeWorkspaceId;
+  });
+
+  // Clear previously displayed resource cards
+  resourceGrid.innerHTML = "";
+
+  // Show empty state if there are no resources
+  if (workspaceResources.length === 0) {
+    resourceEmptyState.hidden = false;
+    return;
+  }
+
+  resourceEmptyState.hidden = true;
+
+  // Display each resource
+  workspaceResources.forEach(function (resource) {
+    const resourceCard = document.createElement("div");
+    resourceCard.classList.add("resource-card");
+
+    const title = document.createElement("h3");
+    title.textContent = resource.title;
+
+    const description = document.createElement("p");
+    description.textContent = resource.description || "No description added.";
+
+    const link = document.createElement("a");
+    link.href = resource.url;
+    link.textContent = "Open Resource ↗";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    const actions = document.createElement("div");
+actions.classList.add("resource-actions");
+
+const editButton = document.createElement("button");
+editButton.textContent = "Edit";
+editButton.classList.add("edit-resource-button");
+editButton.dataset.id = resource.id;
+editButton.addEventListener("click", function () {
+  editingResourceId = resource.id;
+
+  resourceTitleInput.value = resource.title;
+  resourceUrlInput.value = resource.url;
+  resourceDescriptionInput.value = resource.description;
+
+  resourceModalTitle.textContent = "Edit Resource";
+  resourceModal.querySelector('button[type="submit"]').textContent = "Update Resource";
+  resourceModal.hidden = false;
+});
+
+const deleteButton = document.createElement("button");
+deleteButton.textContent = "Delete";
+deleteButton.classList.add("delete-resource-button");
+deleteButton.dataset.id = resource.id;
+
+deleteButton.addEventListener("click", function () {
+  const shouldDelete = confirm(
+    "Are you sure you want to delete this resource?"
+  );
+
+  if (!shouldDelete) {
+    return;
+  }
+
+  const resourceIndex = resources.findIndex(function (item) {
+    return item.id === resource.id;
+  });
+
+  if (resourceIndex !== -1) {
+    resources.splice(resourceIndex, 1);
+    saveResources();
+  }
+
+  renderResources();
+});
+
+actions.append(editButton, deleteButton);
+
+resourceCard.append(title, description, link, actions);
+resourceGrid.appendChild(resourceCard);
+  });
 }
 
 function renderContinueWorking() {

@@ -103,7 +103,6 @@
     </div>
 
   </section>
-    </section>
 
   <!-- Workspace Detail Page -->
   <section id="workspace-detail-page" class="page" hidden>
@@ -120,12 +119,29 @@
     <!-- Workspace Features -->
 <div class="workspace-features">
 
-  <div class="feature-card">
-    <span class="feature-icon">📁</span>
-    <h2>Resources</h2>
-    <p>Keep all your important links and files together.</p>
-    <span class="feature-status">Coming soon</span>
+  <div class="resource-section">
+
+  <div class="resource-section-header">
+    <div>
+      <h2>My Resources</h2>
+      <p>Keep your useful links and learning materials together.</p>
+    </div>
+
+    <button id="add-resource-button" class="primary-button" type="button">
+      + Add Resource
+    </button>
   </div>
+
+  <div id="resource-grid" class="resource-grid">
+    <!-- Resource cards will appear here -->
+  </div>
+
+  <div id="resource-empty-state" class="empty-state">
+    <h2>No resources yet</h2>
+    <p>Add your first resource to get started.</p>
+  </div>
+
+</div>
 
   <div class="feature-card">
     <span class="feature-icon">📝</span>
@@ -147,7 +163,6 @@
 
 </main>
 
-</main>
 <!-- Create Workspace Modal -->
 <div id="workspace-modal" class="modal" hidden>
 
@@ -184,13 +199,61 @@
         </button>
       </div>
 
+        </form>
+
+  </div>
+</div>
+
+<!-- Add Resource Modal -->
+<div id="resource-modal" class="modal" hidden>
+
+  <div class="modal-content">
+
+    <h2 id="resource-modal-title">Add Resource</h2>
+    <p>Save a useful link to this workspace.</p>
+
+    <form id="resource-form">
+
+      <label for="resource-title">Resource Title</label>
+      <input
+        type="text"
+        id="resource-title"
+        placeholder="e.g. JavaScript Documentation"
+        maxlength="60"
+        required
+      />
+
+      <label for="resource-url">Resource URL</label>
+      <input
+        type="url"
+        id="resource-url"
+        placeholder="https://example.com"
+        required
+      />
+
+      <label for="resource-description">Description (Optional)</label>
+      <textarea
+        id="resource-description"
+        placeholder="What is this resource useful for?"
+        maxlength="200"
+      ></textarea>
+
+      <div class="modal-actions">
+        <button type="button" id="cancel-resource">
+          Cancel
+        </button>
+
+        <button type="submit" class="primary-button">
+          Save Resource
+        </button>
+      </div>
+
     </form>
 
   </div>
-
 </div>
-  </div>
 
+  </div>
 </div>
   </body>
 </html>
