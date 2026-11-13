@@ -167,12 +167,60 @@
 
 </div>
 
-  <div class="feature-card">
-    <span class="feature-icon">✓</span>
-    <h2>Tasks</h2>
-    <p>Keep track of what needs to get done.</p>
-    <span class="feature-status">Coming soon</span>
+  <!-- Tasks Section -->
+<div class="tasks-section">
+
+  <div class="tasks-section-header">
+    <div>
+      <h2>My Tasks</h2>
+      <p>Plan your work, track progress and celebrate small wins.</p>
+    </div>
+
+    <button id="add-task-button" class="primary-button" type="button">
+      + Add Task
+    </button>
   </div>
+
+  <div class="kanban-board">
+
+    <!-- To Do Column -->
+    <div class="kanban-column" data-status="todo">
+      <div class="kanban-column-header">
+        <h3>To Do</h3>
+        <span id="todo-count">0</span>
+      </div>
+
+      <div id="todo-tasks" class="task-list">
+        <!-- To Do cards appear here -->
+      </div>
+    </div>
+
+    <!-- In Progress Column -->
+    <div class="kanban-column" data-status="in-progress">
+      <div class="kanban-column-header">
+        <h3>In Progress</h3>
+        <span id="in-progress-count">0</span>
+      </div>
+
+      <div id="in-progress-tasks" class="task-list">
+        <!-- In Progress cards appear here -->
+      </div>
+    </div>
+
+    <!-- Completed Column -->
+    <div class="kanban-column" data-status="completed">
+      <div class="kanban-column-header">
+        <h3>Completed</h3>
+        <span id="completed-count">0</span>
+      </div>
+
+      <div id="completed-tasks" class="task-list">
+        <!-- Completed cards appear here -->
+      </div>
+    </div>
+
+  </div>
+</div>
 
 </div>
 
@@ -315,6 +363,64 @@
       </div>
 
     </form>
+  </div>
+</div>
+
+<!-- Add Task Modal -->
+<div id="task-modal" class="modal" hidden>
+
+  <div class="modal-content">
+
+    <h2 id="task-modal-title">Add Task</h2>
+    <p>Plan your next step.</p>
+
+    <form id="task-form">
+
+      <label for="task-title">Task Title</label>
+      <input
+        type="text"
+        id="task-title"
+        placeholder="e.g. Complete JavaScript revision"
+        maxlength="80"
+        required
+      />
+
+      <label for="task-description">Description (Optional)</label>
+      <textarea
+        id="task-description"
+        placeholder="Add some details about this task..."
+        maxlength="300"
+      ></textarea>
+
+      <label for="task-priority">Priority</label>
+      <select id="task-priority" required>
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+
+      <label for="task-due-date">Due Date (Optional)</label>
+      <input
+        type="date"
+        id="task-due-date"
+      />
+
+      <label for="task-status">Status</label>
+      <select id="task-status" required>
+        <option value="todo" selected>To Do</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+
+      <div class="modal-actions">
+        <button type="button" id="cancel-task">Cancel</button>
+        <button type="submit" class="primary-button">
+          Save Task
+        </button>
+      </div>
+
+    </form>
+
   </div>
 </div>
   </div>

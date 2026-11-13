@@ -16,7 +16,13 @@ let editingWorkspaceId = null;
 let activeWorkspaceId = null;
 let editingResourceId = null;
 let editingNoteId = null;
+let editingTaskId = null;
 
+// Store all tasks
+// Load saved tasks from localStorage
+const savedTasks = localStorage.getItem("workora-tasks");
+
+const tasks = savedTasks ? JSON.parse(savedTasks) : [];
 // Load saved resources
 const savedResources = localStorage.getItem("workora-resources");
 const resources = savedResources ? JSON.parse(savedResources) : [];
@@ -32,6 +38,11 @@ const notes = savedNotes ? JSON.parse(savedNotes) : [];
 // Save notes to localStorage
 function saveNotes() {
   localStorage.setItem("workora-notes", JSON.stringify(notes));
+}
+
+// Save tasks to localStorage
+function saveTasks() {
+  localStorage.setItem("workora-tasks", JSON.stringify(tasks));
 }
 // Select page elements
 const dashboardPage = document.querySelector("#dashboard-page");
@@ -81,6 +92,15 @@ const notesEmptyState = document.querySelector("#notes-empty-state");
 const noteTitleInput = document.querySelector("#note-title");
 const noteEditor = document.querySelector("#note-editor");
 const editorToolbar = document.querySelector(".editor-toolbar");
+// Select Kanban task containers
+const todoTasksContainer = document.querySelector("#todo-tasks");
+const inProgressTasksContainer = document.querySelector("#in-progress-tasks");
+const completedTasksContainer = document.querySelector("#completed-tasks");
+
+// Select task counters
+const todoCount = document.querySelector("#todo-count");
+const inProgressCount = document.querySelector("#in-progress-count");
+const completedCount = document.querySelector("#completed-count");
 
 const workspaceSubmitButton = workspaceForm.querySelector(
   'button[type="submit"]'
@@ -99,6 +119,20 @@ const resourceForm = document.querySelector("#resource-form");
 const resourceTitleInput = document.querySelector("#resource-title");
 const resourceUrlInput = document.querySelector("#resource-url");
 const resourceDescriptionInput = document.querySelector("#resource-description");
+
+// Select task modal elements
+const taskModal = document.querySelector("#task-modal");
+const addTaskButton = document.querySelector("#add-task-button");
+const cancelTaskButton = document.querySelector("#cancel-task");
+const taskForm = document.querySelector("#task-form");
+const taskModalTitle = document.querySelector("#task-modal-title");
+const taskSubmitButton = taskForm.querySelector('button[type="submit"]');
+// Select task form inputs
+const taskTitleInput = document.querySelector("#task-title");
+const taskDescriptionInput = document.querySelector("#task-description");
+const taskPriorityInput = document.querySelector("#task-priority");
+const taskDueDateInput = document.querySelector("#task-due-date");
+const taskStatusInput = document.querySelector("#task-status");
 
 // Select navigation links
 const navLinks = document.querySelectorAll(".sidebar nav a");
@@ -244,6 +278,85 @@ addResourceButton.addEventListener("click", function () {
 addNoteButton.addEventListener("click", function () {
   noteForm.reset();
   noteModal.hidden = false;
+});
+// Open Task Modal
+// Open Task Modal
+addTaskButton.addEventListener("click", function () {
+  editingTaskId = null;
+
+  taskForm.reset();
+  taskModalTitle.textContent = "Add Task";
+  taskSubmitButton.textContent = "Save Task";
+
+  taskModal.hidden = false;
+});
+
+// Close Task Modal
+cancelTaskButton.addEventListener("click", function () {
+  taskModal.hidden = true;
+  taskForm.reset();
+});
+// Save a new task
+taskForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const title = taskTitleInput.value.trim();
+
+if (!title) {
+  alert("Please enter a task title.");
+  taskTitleInput.focus();
+  return;
+}
+
+if (!["low", "medium", "high"].includes(taskPriorityInput.value)) {
+  alert("Please select a valid priority.");
+  return;
+}
+
+if (!["todo", "in-progress", "completed"].includes(taskStatusInput.value)) {
+  alert("Please select a valid task status.");
+  return;
+}
+  if (editingTaskId) {
+  // Find the existing task
+  const taskToUpdate = tasks.find(function (task) {
+    return task.id === editingTaskId;
+  });
+
+  if (taskToUpdate) {
+    taskToUpdate.title = title;
+    taskToUpdate.description = taskDescriptionInput.value.trim();
+    taskToUpdate.priority = taskPriorityInput.value;
+    taskToUpdate.dueDate = taskDueDateInput.value;
+    taskToUpdate.status = taskStatusInput.value;
+    taskToUpdate.updatedAt = new Date().toISOString();
+  }
+
+  editingTaskId = null;
+
+} else {
+  // Create a new task
+  const newTask = {
+    id: crypto.randomUUID(),
+    workspaceId: activeWorkspaceId,
+    title: title,
+    description: taskDescriptionInput.value.trim(),
+    priority: taskPriorityInput.value,
+    dueDate: taskDueDateInput.value,
+    status: taskStatusInput.value,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  tasks.push(newTask);
+}
+
+saveTasks();
+renderTasks();
+
+  taskForm.reset();
+  taskModal.hidden = true;
+
 });
 // Close resource modal
 cancelResourceButton.addEventListener("click", function () {
@@ -402,8 +515,9 @@ function openWorkspace(workspace) {
     workspace.description || "No description provided.";
 
   showPage("detail");
-  renderResources();
-  renderNotes();
+renderResources();
+renderNotes();
+renderTasks();
 }
 function renderResources() {
   // Get resources belonging to the active workspace
@@ -572,6 +686,182 @@ noteCard.append(title, content, actions);
 notesGrid.appendChild(noteCard);
   });
 }
+// Render tasks inside their respective Kanban columns
+function renderTasks() {
+  // Get tasks belonging to the active workspace
+  const workspaceTasks = tasks.filter(function (task) {
+    return task.workspaceId === activeWorkspaceId;
+  });
+
+  // Clear existing task cards
+  todoTasksContainer.innerHTML = "";
+  inProgressTasksContainer.innerHTML = "";
+  completedTasksContainer.innerHTML = "";
+
+  // Separate tasks by status
+  const todo = workspaceTasks.filter(task => task.status === "todo");
+  const inProgress = workspaceTasks.filter(task => task.status === "in-progress");
+  const completed = workspaceTasks.filter(task => task.status === "completed");
+
+  // Update column counters
+  todoCount.textContent = todo.length;
+  inProgressCount.textContent = inProgress.length;
+  completedCount.textContent = completed.length;
+
+  // Display task cards
+  workspaceTasks.forEach(function (task) {
+    const taskCard = document.createElement("div");
+    taskCard.classList.add("task-card");
+    // Make task card draggable
+taskCard.setAttribute("draggable", "true");
+
+// Store task ID when dragging starts
+taskCard.addEventListener("dragstart", function (event) {
+  event.dataTransfer.setData("text/plain", task.id);
+});
+
+    const title = document.createElement("h4");
+    title.textContent = task.title;
+
+    const description = document.createElement("p");
+    description.textContent = task.description;
+
+    const priority = document.createElement("span");
+    priority.textContent = task.priority;
+    priority.classList.add("task-priority", `priority-${task.priority}`);
+
+    taskCard.appendChild(title);
+
+    if (task.description) {
+      taskCard.appendChild(description);
+    }
+
+    taskCard.appendChild(priority);
+    // Create status dropdown
+const statusSelect = document.createElement("select");
+statusSelect.classList.add("task-status-select");
+
+const statuses = [
+  { value: "todo", label: "To Do" },
+  { value: "in-progress", label: "In Progress" },
+  { value: "completed", label: "Completed" }
+];
+
+// Add dropdown options
+statuses.forEach(function (status) {
+  const option = document.createElement("option");
+  option.value = status.value;
+  option.textContent = status.label;
+  statusSelect.appendChild(option);
+});
+
+// Show the task's current status
+statusSelect.value = task.status;
+
+// Update task status when changed
+statusSelect.addEventListener("change", function () {
+  task.status = statusSelect.value;
+task.updatedAt = new Date().toISOString();
+
+saveTasks();
+renderTasks();
+});
+
+taskCard.appendChild(statusSelect);
+
+    if (task.dueDate) {
+      const dueDate = document.createElement("p");
+      dueDate.textContent = `Due: ${task.dueDate}`;
+      taskCard.appendChild(dueDate);
+    }
+    // Create Edit button
+const editButton = document.createElement("button");
+editButton.textContent = "Edit";
+editButton.classList.add("edit-task-button");
+
+editButton.addEventListener("click", function () {
+  editingTaskId = task.id;
+
+  // Fill form with existing task details
+  taskTitleInput.value = task.title;
+  taskDescriptionInput.value = task.description;
+  taskPriorityInput.value = task.priority;
+  taskDueDateInput.value = task.dueDate;
+  taskStatusInput.value = task.status;
+
+  // Change modal heading and button
+  taskModalTitle.textContent = "Edit Task";
+  taskSubmitButton.textContent = "Update Task";
+
+  taskModal.hidden = false;
+});
+
+taskCard.appendChild(editButton);
+
+// Create Delete button
+const deleteButton = document.createElement("button");
+deleteButton.textContent = "Delete";
+deleteButton.classList.add("delete-task-button");
+
+deleteButton.addEventListener("click", function () {
+  const shouldDelete = confirm(
+    "Are you sure you want to delete this task?"
+  );
+
+  if (!shouldDelete) {
+    return;
+  }
+
+  const taskIndex = tasks.findIndex(function (item) {
+    return item.id === task.id;
+  });
+
+  if (taskIndex !== -1) {
+    tasks.splice(taskIndex, 1);
+    saveTasks();
+  }
+
+  renderTasks();
+});
+
+taskCard.appendChild(deleteButton);
+
+    // Place card in the correct column
+    if (task.status === "todo") {
+      todoTasksContainer.appendChild(taskCard);
+    } else if (task.status === "in-progress") {
+      inProgressTasksContainer.appendChild(taskCard);
+    } else if (task.status === "completed") {
+      completedTasksContainer.appendChild(taskCard);
+    }
+  });
+
+}
+// Set up Kanban drop zones once
+const kanbanColumns = document.querySelectorAll(".kanban-column");
+
+kanbanColumns.forEach(function (column) {
+  column.addEventListener("dragover", function (event) {
+    event.preventDefault();
+  });
+
+  column.addEventListener("drop", function (event) {
+    event.preventDefault();
+
+    const taskId = event.dataTransfer.getData("text/plain");
+    const task = tasks.find(function (item) {
+      return item.id === taskId;
+    });
+
+    if (!task || task.workspaceId !== activeWorkspaceId) return;
+
+    task.status = column.dataset.status;
+    task.updatedAt = new Date().toISOString();
+
+    saveTasks();
+    renderTasks();
+  });
+});
 
 function renderContinueWorking() {
   const latestWorkspace = getLatestWorkspace();
