@@ -1,4 +1,18 @@
 console.log("Workora initialized!");
+
+// Display toast notifications
+function showToast(message, type = "success") {
+  const toast = document.createElement("div");
+
+  toast.classList.add("toast", `toast-${type}`);
+  toast.textContent = message;
+
+  toastContainer.appendChild(toast);
+
+  setTimeout(function () {
+    toast.remove();
+  }, 3000);
+}
 // Store all workspaces
 // Load previously saved workspaces
 const savedWorkspaces = localStorage.getItem("workora-workspaces");
@@ -73,6 +87,9 @@ const workspaceEmptyState = document.querySelector("#workspace-empty-state");
 const continueUpdated = document.querySelector("#continue-updated");
 const resourceGrid = document.querySelector("#resource-grid");
 const resourceEmptyState = document.querySelector("#resource-empty-state");
+
+// Select toast notification container
+const toastContainer = document.querySelector("#toast-container");
 
 // Select modal elements
 const workspaceModal = document.querySelector("#workspace-modal");
@@ -195,6 +212,10 @@ function showPage(pageName) {
       link.classList.remove("active");
     }
   });
+  // Refresh workspace cards whenever the page is opened
+if (isWorkspaces) {
+  renderWorkspaces();
+}
 }
 // Connect navigation links
 navLinks[0].addEventListener("click", function (event) {
@@ -318,6 +339,8 @@ if (!["todo", "in-progress", "completed"].includes(taskStatusInput.value)) {
   alert("Please select a valid task status.");
   return;
 }
+
+ const isEditingTask = Boolean(editingTaskId);
   if (editingTaskId) {
   // Find the existing task
   const taskToUpdate = tasks.find(function (task) {
@@ -354,6 +377,11 @@ if (!["todo", "in-progress", "completed"].includes(taskStatusInput.value)) {
 
 saveTasks();
 renderTasks();
+showToast(
+  isEditingTask
+    ? "Task updated successfully!"
+    : "Task created successfully!"
+);
 
   taskForm.reset();
   taskModal.hidden = true;
@@ -394,6 +422,8 @@ if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
   return;
 }
 
+const isEditingResource = Boolean(editingResourceId);
+
   if (editingResourceId) {
   const resourceToUpdate = resources.find(function (resource) {
     return resource.id === editingResourceId;
@@ -425,6 +455,11 @@ if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
 }
 
   renderResources();
+  showToast(
+  isEditingResource
+    ? "Resource updated successfully!"
+    : "Resource added successfully!"
+);
 
   resourceModal.hidden = true;
   resourceForm.reset();
@@ -446,6 +481,7 @@ noteForm.addEventListener("submit", function (event) {
     alert("Please enter some note content.");
     return;
   }
+   const isEditingNote = Boolean(editingNoteId);
 
   if (editingNoteId) {
   const noteToUpdate = notes.find(function (note) {
@@ -475,6 +511,11 @@ noteForm.addEventListener("submit", function (event) {
 
   saveNotes();
   renderNotes();
+  showToast(
+  isEditingNote
+    ? "Note updated successfully!"
+    : "Note created successfully!"
+);
 
   noteModal.hidden = true;
   noteForm.reset();
@@ -595,7 +636,7 @@ deleteButton.addEventListener("click", function () {
     resources.splice(resourceIndex, 1);
     saveResources();
   }
-
+showToast("Resource deleted successfully!");
   renderResources();
 });
 
@@ -663,6 +704,7 @@ deleteButton.addEventListener("click", function () {
     notes.splice(noteIndex, 1);
     saveNotes();
   }
+  showToast("Note deleted successfully!");
 
   renderNotes();
 });
@@ -768,15 +810,34 @@ task.updatedAt = new Date().toISOString();
 
 saveTasks();
 renderTasks();
+showToast("Task status updated successfully!");
 });
 
 taskCard.appendChild(statusSelect);
 
     if (task.dueDate) {
-      const dueDate = document.createElement("p");
-      dueDate.textContent = `Due: ${task.dueDate}`;
-      taskCard.appendChild(dueDate);
-    }
+  const dueDate = document.createElement("p");
+
+  const formattedDate = new Date(
+    task.dueDate + "T00:00:00"
+  ).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+
+  dueDate.textContent = `Due: ${formattedDate}`;
+  // Check whether the task is overdue
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const taskDueDate = new Date(task.dueDate + "T00:00:00");
+
+if (taskDueDate < today && task.status !== "completed") {
+  dueDate.classList.add("task-overdue");
+}
+  taskCard.appendChild(dueDate);
+}
     // Create Edit button
 const editButton = document.createElement("button");
 editButton.textContent = "Edit";
@@ -823,6 +884,7 @@ deleteButton.addEventListener("click", function () {
     tasks.splice(taskIndex, 1);
     saveTasks();
   }
+  showToast("Task deleted successfully!");
 
   renderTasks();
 });
@@ -863,6 +925,7 @@ kanbanColumns.forEach(function (column) {
 
     saveTasks();
     renderTasks();
+    showToast("Task moved successfully!");
   });
 });
 
@@ -923,6 +986,19 @@ title.textContent = workspace.name;
 const description = document.createElement("p");
 description.textContent = workspace.description || "No description provided.";
 
+// Count items belonging to this workspace
+const resourceCount = resources.filter(function (item) {
+  return item.workspaceId === workspace.id;
+}).length;
+
+const noteCount = notes.filter(function (item) {
+  return item.workspaceId === workspace.id;
+}).length;
+
+const taskCount = tasks.filter(function (item) {
+  return item.workspaceId === workspace.id;
+}).length;
+
 const updatedDate = document.createElement("span");
 updatedDate.classList.add("workspace-updated");
 
@@ -936,6 +1012,18 @@ updatedDate.textContent = `Updated ${new Date(
 
 card.appendChild(title);
 card.appendChild(description);
+
+// Workspace statistics
+const stats = document.createElement("div");
+stats.classList.add("workspace-stats");
+
+stats.innerHTML = `
+  <span>${resourceCount} Resources</span>
+  <span>${noteCount} Notes</span>
+  <span>${taskCount} Tasks</span>
+`;
+
+card.appendChild(stats);
 card.appendChild(updatedDate);
 
 const actions = document.createElement("div");
@@ -1047,6 +1135,9 @@ localStorage.setItem("workora-workspaces", JSON.stringify(workspaces));
 console.log("All Workspaces:", workspaces);
 renderWorkspaces();
 renderContinueWorking();
+showToast(
+  editingWorkspaceId ? "Workspace updated successfully!" : "Workspace created successfully!"
+);
 
 // Close modal and clear form
 workspaceModal.hidden = true;

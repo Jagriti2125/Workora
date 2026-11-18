@@ -1105,3 +1105,73 @@ h3 {
 .delete-task-button {
   margin-right: 6px;
 }
+
+/* Workspace Statistics */
+.workspace-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.workspace-stats span {
+  background-color: #F0EAF6;
+  color: var(--color-primary);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Overdue task warning */
+.task-overdue {
+  color: #C45B5B;
+  font-weight: 600;
+  background-color: #FBEAEA;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  min-width: 260px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 16px rgba(81, 75, 94, 0.12);
+  font-size: 14px;
+  font-weight: 600;
+  animation: toastSlideIn 0.3s ease;
+}
+
+.toast-success {
+  border-left: 4px solid #8BA88B;
+  color: #557455;
+}
+
+.toast-error {
+  border-left: 4px solid #C45B5B;
+  color: #A44444;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
