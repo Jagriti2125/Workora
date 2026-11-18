@@ -1,3 +1,4 @@
+import { loadData } from "./services/storage.js";
 console.log("Workora initialized!");
 
 // Display toast notifications
@@ -15,15 +16,12 @@ function showToast(message, type = "success") {
 }
 // Store all workspaces
 // Load previously saved workspaces
-const savedWorkspaces = localStorage.getItem("workora-workspaces");
 
-const workspaces = savedWorkspaces
-  ? JSON.parse(savedWorkspaces)
-  : [];
+const workspaces = loadData("workora-workspaces");
 
 // Save workspaces to localStorage
 function saveWorkspaces() {
-  localStorage.setItem("workora-workspaces", JSON.stringify(workspaces));
+  saveData("workora-workspaces", workspaces);
 }
 
 let editingWorkspaceId = null;
@@ -34,29 +32,25 @@ let editingTaskId = null;
 
 // Store all tasks
 // Load saved tasks from localStorage
-const savedTasks = localStorage.getItem("workora-tasks");
-
-const tasks = savedTasks ? JSON.parse(savedTasks) : [];
+const tasks = loadData("workora-tasks");
 // Load saved resources
-const savedResources = localStorage.getItem("workora-resources");
-const resources = savedResources ? JSON.parse(savedResources) : [];
+const resources = loadData("workora-resources");
 
 // Save resources to localStorage
 function saveResources() {
-  localStorage.setItem("workora-resources", JSON.stringify(resources));
+  saveData("workora-resources", resources);
 }
 // Load saved notes
-const savedNotes = localStorage.getItem("workora-notes");
-const notes = savedNotes ? JSON.parse(savedNotes) : [];
+const notes = loadData("workora-notes");
 
 // Save notes to localStorage
 function saveNotes() {
-  localStorage.setItem("workora-notes", JSON.stringify(notes));
+  saveData("workora-notes", notes);
 }
 
 // Save tasks to localStorage
 function saveTasks() {
-  localStorage.setItem("workora-tasks", JSON.stringify(tasks));
+  saveData("workora-tasks", tasks);
 }
 // Select page elements
 const dashboardPage = document.querySelector("#dashboard-page");
@@ -1069,7 +1063,7 @@ deleteButton.addEventListener("click", function (event) {
 
   workspaces.splice(workspaceIndex, 1);
 
-  localStorage.setItem("workora-workspaces", JSON.stringify(workspaces));
+  saveWorkspaces();
 
   renderWorkspaces();
   renderContinueWorking();
@@ -1134,7 +1128,7 @@ if (duplicateWorkspace) {
   workspaces.push(workspace);
 }
   // Save workspaces in browser storage
-localStorage.setItem("workora-workspaces", JSON.stringify(workspaces));
+saveWorkspaces();
 
 console.log("All Workspaces:", workspaces);
 renderWorkspaces();
