@@ -180,6 +180,38 @@
   font-size: 14px;
 }
 
+.empty-state {
+  background-color: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: 16px;
+  margin-top: var(--spacing-md);
+}
+
+.empty-state-icon {
+  font-size: 36px;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.empty-state h2 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+}
+
+.empty-state p {
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.empty-state-hint {
+  display: inline-block;
+  margin-top: var(--spacing-md);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 
 /* Modal overlay */
 .modal {

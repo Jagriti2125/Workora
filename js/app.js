@@ -96,6 +96,7 @@ const editorToolbar = document.querySelector(".editor-toolbar");
 const todoTasksContainer = document.querySelector("#todo-tasks");
 const inProgressTasksContainer = document.querySelector("#in-progress-tasks");
 const completedTasksContainer = document.querySelector("#completed-tasks");
+const tasksEmptyState = document.querySelector("#tasks-empty-state");
 
 // Select task counters
 const todoCount = document.querySelector("#todo-count");
@@ -692,6 +693,8 @@ function renderTasks() {
   const workspaceTasks = tasks.filter(function (task) {
     return task.workspaceId === activeWorkspaceId;
   });
+    // Show empty state when there are no tasks
+  tasksEmptyState.hidden = workspaceTasks.length > 0;
 
   // Clear existing task cards
   todoTasksContainer.innerHTML = "";
@@ -867,12 +870,13 @@ function renderContinueWorking() {
   const latestWorkspace = getLatestWorkspace();
 
   if (!latestWorkspace) {
-    continueUpdated.textContent = "Your workspace awaits";
-    continueTitle.textContent = "Pick up where you left off";
-    continueDescription.textContent =
-      "Your next productive session is just one click away.";
-    return;
-  }
+  continueUpdated.textContent = "A little progress every day.";
+  continueTitle.textContent = "Your journey starts here!";
+  continueDescription.textContent =
+    "Create your first workspace to bring your projects, learning resources and ideas together.";
+
+  return;
+}
 
   continueTitle.textContent = latestWorkspace.name;
   continueDescription.textContent =
