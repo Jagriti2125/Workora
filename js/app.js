@@ -929,23 +929,27 @@ kanbanColumns.forEach(function (column) {
   });
 });
 
+
 function renderContinueWorking() {
   const latestWorkspace = getLatestWorkspace();
 
   if (!latestWorkspace) {
-  continueUpdated.textContent = "A little progress every day.";
-  continueTitle.textContent = "Your journey starts here!";
-  continueDescription.textContent =
-    "Create your first workspace to bring your projects, learning resources and ideas together.";
+    exploreWorkspacesButton.textContent = "Explore Workspaces →";
+    continueUpdated.textContent = "A little progress every day.";
+    continueTitle.textContent = "Your journey starts here!";
+    continueDescription.textContent =
+      "Create your first workspace to bring your projects, learning resources and ideas together.";
 
-  return;
-}
+    return;
+  }
+
+  exploreWorkspacesButton.textContent = "Resume Workspace →";
 
   continueTitle.textContent = latestWorkspace.name;
   continueDescription.textContent =
     latestWorkspace.description || "Your workspace is ready to continue.";
 
-    continueUpdated.textContent = `Last updated ${new Date(
+  continueUpdated.textContent = `Last updated ${new Date(
     latestWorkspace.updatedAt
   ).toLocaleDateString("en-IN", {
     day: "numeric",
