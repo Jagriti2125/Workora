@@ -3,23 +3,11 @@ import { initWorkspaceModule } from "./modules/workspace.js";
 import { initResourceModule } from "./modules/resource.js";
 import { initNoteModule } from "./modules/note.js";
 import { initTaskModule } from "./modules/task.js";
+import { showToast } from "./utils/notifications.js";
+import { formatDate } from "./utils/date.js";
 
 console.log("Workora initialized!");
 
-// Display toast notifications
-function showToast(message, type = "success") {
-  const toast = document.createElement("div");
-
-  toast.classList.add("toast", `toast-${type}`);
-  toast.textContent = message;
-
-  toastContainer.appendChild(toast);
-
-  setTimeout(function () {
-    toast.remove();
-  }, 3000);
-}
-// Store all workspaces
 // Load previously saved workspaces
 
 const workspaces = loadData("workora-workspaces");
@@ -84,8 +72,6 @@ const continueUpdated = document.querySelector("#continue-updated");
 const resourceGrid = document.querySelector("#resource-grid");
 const resourceEmptyState = document.querySelector("#resource-empty-state");
 
-// Select toast notification container
-const toastContainer = document.querySelector("#toast-container");
 
 // Select modal elements
 const workspaceModal = document.querySelector("#workspace-modal");
@@ -164,9 +150,7 @@ function updateGreeting() {
 }
 
 function updateDate() {
-  const today = new Date();
-
-  const formattedDate = today.toLocaleDateString("en-IN", {
+  const formattedDate = formatDate(new Date(), {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -175,6 +159,7 @@ function updateDate() {
 
   currentDate.textContent = formattedDate;
 }
+
 // Function to show a page
 function showPage(pageName) {
   const isDashboard = pageName === "dashboard";

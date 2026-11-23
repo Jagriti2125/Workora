@@ -1,3 +1,5 @@
+import { formatDate } from "../utils/date.js";
+
 // Initialize the task module
 export function initTaskModule({
   tasks,
@@ -208,13 +210,14 @@ taskCard.appendChild(statusSelect);
     if (task.dueDate) {
   const dueDate = document.createElement("p");
 
-  const formattedDate = new Date(
-    task.dueDate + "T00:00:00"
-  ).toLocaleDateString("en-IN", {
+  const formattedDate = formatDate(
+  task.dueDate + "T00:00:00",
+  {
     day: "numeric",
     month: "short",
     year: "numeric"
-  });
+  }
+);
 
   dueDate.textContent = `Due: ${formattedDate}`;
   // Check whether the task is overdue

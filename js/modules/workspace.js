@@ -1,6 +1,7 @@
 
 // Workspace module
 // Handles workspace creation, editing, deletion and rendering.
+import { formatDate } from "../utils/date.js";
 
 // Initialize workspace module
 export function initWorkspaceModule({
@@ -64,13 +65,11 @@ export function initWorkspaceModule({
     continueDescription.textContent =
       latestWorkspace.description || "Your workspace is ready to continue.";
 
-    continueUpdated.textContent = `Last updated ${new Date(
-      latestWorkspace.updatedAt
-    ).toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric"
-    })}`;
+    continueUpdated.textContent = `Last updated ${formatDate(latestWorkspace.updatedAt, {
+  day: "numeric",
+  month: "short",
+  year: "numeric"
+})}`;
   }
 
   // Display workspace cards
@@ -116,13 +115,11 @@ export function initWorkspaceModule({
       const updatedDate = document.createElement("span");
       updatedDate.classList.add("workspace-updated");
 
-      updatedDate.textContent = `Updated ${new Date(
-        workspace.updatedAt
-      ).toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric"
-      })}`;
+      updatedDate.textContent = `Updated ${formatDate(workspace.updatedAt, {
+       day: "numeric",
+       month: "short",
+       year: "numeric"
+       })}`;
 
       card.appendChild(title);
       card.appendChild(description);
