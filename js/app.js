@@ -1,5 +1,9 @@
 import { loadData, saveData } from "./services/storage.js";
 import { initWorkspaceModule } from "./modules/workspace.js";
+import { initResourceModule } from "./modules/resource.js";
+import { initNoteModule } from "./modules/note.js";
+import { initTaskModule } from "./modules/task.js";
+
 console.log("Workora initialized!");
 
 // Display toast notifications
@@ -27,9 +31,6 @@ function saveWorkspaces() {
 
 
 let activeWorkspaceId = null;
-let editingResourceId = null;
-let editingNoteId = null;
-let editingTaskId = null;
 
 // Store all tasks
 // Load saved tasks from localStorage
@@ -228,281 +229,6 @@ backToWorkspacesButton.addEventListener("click", function () {
 
 
 
-// Rich text editor toolbar
-// Rich text editor toolbar
-editorToolbar.addEventListener("click", function (event) {
-  const button = event.target.closest("button");
-
-  if (!button) {
-    return;
-  }
-
-  const command = button.dataset.command;
-  const value = button.dataset.value || null;
-
-  noteEditor.focus();
-
-  document.execCommand(command, false, value);
-
-  updateToolbarState();
-});
-// Update toolbar active states
-function updateToolbarState() {
-  const buttons = editorToolbar.querySelectorAll("button");
-
-  buttons.forEach(function (button) {
-    const command = button.dataset.command;
-
-    if (
-      command === "bold" ||
-      command === "italic" ||
-      command === "underline"
-    ) {
-      button.classList.toggle(
-        "active",
-        document.queryCommandState(command)
-      );
-    }
-  });
-}
-// Open resource modal
-addResourceButton.addEventListener("click", function () {
-  editingResourceId = null;
-  resourceForm.reset();
-
-  resourceModalTitle.textContent = "Add Resource";
-  resourceModal.querySelector('button[type="submit"]').textContent = "Save Resource";
-
-  resourceModal.hidden = false;
-});
-
-// Open note modal
-addNoteButton.addEventListener("click", function () {
-  noteForm.reset();
-  noteModal.hidden = false;
-});
-// Open Task Modal
-// Open Task Modal
-addTaskButton.addEventListener("click", function () {
-  editingTaskId = null;
-
-  taskForm.reset();
-  taskModalTitle.textContent = "Add Task";
-  taskSubmitButton.textContent = "Save Task";
-
-  taskModal.hidden = false;
-});
-
-// Close Task Modal
-cancelTaskButton.addEventListener("click", function () {
-  taskModal.hidden = true;
-  taskForm.reset();
-});
-// Save a new task
-taskForm.addEventListener("submit", function (event) {
-  event.preventDefault();
-
-  const title = taskTitleInput.value.trim();
-
-if (!title) {
-  alert("Please enter a task title.");
-  taskTitleInput.focus();
-  return;
-}
-
-if (!["low", "medium", "high"].includes(taskPriorityInput.value)) {
-  alert("Please select a valid priority.");
-  return;
-}
-
-if (!["todo", "in-progress", "completed"].includes(taskStatusInput.value)) {
-  alert("Please select a valid task status.");
-  return;
-}
-
- const isEditingTask = Boolean(editingTaskId);
-  if (editingTaskId) {
-  // Find the existing task
-  const taskToUpdate = tasks.find(function (task) {
-    return task.id === editingTaskId;
-  });
-
-  if (taskToUpdate) {
-    taskToUpdate.title = title;
-    taskToUpdate.description = taskDescriptionInput.value.trim();
-    taskToUpdate.priority = taskPriorityInput.value;
-    taskToUpdate.dueDate = taskDueDateInput.value;
-    taskToUpdate.status = taskStatusInput.value;
-    taskToUpdate.updatedAt = new Date().toISOString();
-  }
-
-  editingTaskId = null;
-
-} else {
-  // Create a new task
-  const newTask = {
-    id: crypto.randomUUID(),
-    workspaceId: activeWorkspaceId,
-    title: title,
-    description: taskDescriptionInput.value.trim(),
-    priority: taskPriorityInput.value,
-    dueDate: taskDueDateInput.value,
-    status: taskStatusInput.value,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-
-  tasks.push(newTask);
-}
-
-saveTasks();
-updateWorkspaceActivity(activeWorkspaceId);
-renderTasks();
-showToast(
-  isEditingTask
-    ? "Task updated successfully!"
-    : "Task created successfully!"
-);
-
-  taskForm.reset();
-  taskModal.hidden = true;
-
-});
-// Close resource modal
-cancelResourceButton.addEventListener("click", function () {
-  resourceModal.hidden = true;
-  resourceForm.reset();
-});
-// Close note modal
-cancelNoteButton.addEventListener("click", function () {
-  noteModal.hidden = true;
-  noteForm.reset();
-});
-// Add a new resource
-resourceForm.addEventListener("submit", function (event) {
-  event.preventDefault();
-
-  const title = resourceTitleInput.value.trim();
-  const url = resourceUrlInput.value.trim();
-  const description = resourceDescriptionInput.value.trim();
-  if (!title) {
-  alert("Please enter a resource title.");
-  return;
-}
-let parsedUrl;
-
-try {
-  parsedUrl = new URL(url);
-} catch {
-  alert("Please enter a valid URL.");
-  return;
-}
-
-if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
-  alert("Only HTTP and HTTPS links are allowed.");
-  return;
-}
-
-const isEditingResource = Boolean(editingResourceId);
-
-  if (editingResourceId) {
-  const resourceToUpdate = resources.find(function (resource) {
-    return resource.id === editingResourceId;
-  });
-
-  if (resourceToUpdate) {
-    resourceToUpdate.title = title;
-    resourceToUpdate.url = url;
-    resourceToUpdate.description = description;
-    resourceToUpdate.updatedAt = new Date().toISOString();
-    saveResources();
-  }
-
-  editingResourceId = null;
-
-} else {
-  const resource = {
-    id: crypto.randomUUID(),
-    workspaceId: activeWorkspaceId,
-    title: title,
-    url: url,
-    description: description,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-
-  resources.push(resource);
-  saveResources();
-}
-    updateWorkspaceActivity(activeWorkspaceId);
-  renderResources();
-  showToast(
-  isEditingResource
-    ? "Resource updated successfully!"
-    : "Resource added successfully!"
-);
-
-  resourceModal.hidden = true;
-  resourceForm.reset();
-});
-
-// Create a new note
-noteForm.addEventListener("submit", function (event) {
-  event.preventDefault();
-
-  const title = noteTitleInput.value.trim();
-  const content = noteEditor.innerHTML.trim();
-
-  if (!title) {
-    alert("Please enter a note title.");
-    return;
-  }
-
-  if (!noteEditor.textContent.trim()) {
-    alert("Please enter some note content.");
-    return;
-  }
-   const isEditingNote = Boolean(editingNoteId);
-
-  if (editingNoteId) {
-  const noteToUpdate = notes.find(function (note) {
-    return note.id === editingNoteId;
-  });
-
-  if (noteToUpdate) {
-    noteToUpdate.title = title;
-    noteToUpdate.content = content;
-    noteToUpdate.updatedAt = new Date().toISOString();
-  }
-
-  editingNoteId = null;
-
-} else {
-  const note = {
-    id: crypto.randomUUID(),
-    workspaceId: activeWorkspaceId,
-    title: title,
-    content: content,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-
-  notes.push(note);
-}
-
-  saveNotes();
-updateWorkspaceActivity(activeWorkspaceId);
-renderNotes();
-  showToast(
-  isEditingNote
-    ? "Note updated successfully!"
-    : "Note created successfully!"
-);
-
-  noteModal.hidden = true;
-  noteForm.reset();
-  noteEditor.innerHTML = "";
-});
 
 
 
@@ -520,9 +246,9 @@ function openWorkspace(workspace) {
     workspace.description || "No description provided.";
 
   showPage("detail");
-renderResources();
-renderNotes();
-renderTasks();
+resourceModule.renderResources();
+noteModule.renderNotes();
+taskModule.renderTasks();
 }
 
 // Initialize workspace module
@@ -551,6 +277,55 @@ const workspaceModule = initWorkspaceModule({
   showPage
 });
 
+// Initialize note module
+const noteModule = initNoteModule({
+  notes,
+  notesGrid,
+  notesEmptyState,
+  noteModal,
+  noteModalTitle,
+  noteForm,
+  addNoteButton,
+  cancelNoteButton,
+  noteTitleInput,
+  noteEditor,
+  editorToolbar,
+  getActiveWorkspaceId: function () {
+    return activeWorkspaceId;
+  },
+  saveNotes,
+  updateWorkspaceActivity,
+  showToast
+});
+
+// Initialize task module
+const taskModule = initTaskModule({
+  tasks,
+  todoTasksContainer,
+  inProgressTasksContainer,
+  completedTasksContainer,
+  tasksEmptyState,
+  todoCount,
+  inProgressCount,
+  completedCount,
+  taskModal,
+  taskModalTitle,
+  taskSubmitButton,
+  taskForm,
+  addTaskButton,
+  cancelTaskButton,
+  taskTitleInput,
+  taskDescriptionInput,
+  taskPriorityInput,
+  taskDueDateInput,
+  taskStatusInput,
+  getActiveWorkspaceId: function () {
+    return activeWorkspaceId;
+  },
+  saveTasks,
+  updateWorkspaceActivity,
+  showToast
+});
 // Update workspace activity whenever its content changes
 function updateWorkspaceActivity(workspaceId) {
   const workspace = workspaces.find(function (item) {
@@ -569,381 +344,26 @@ function updateWorkspaceActivity(workspaceId) {
   workspaceModule.renderContinueWorking();
 }
 
-function renderResources() {
-  // Get resources belonging to the active workspace
-  const workspaceResources = resources.filter(function (resource) {
-    return resource.workspaceId === activeWorkspaceId;
-  });
-
-  // Clear previously displayed resource cards
-  resourceGrid.innerHTML = "";
-
-  // Show empty state if there are no resources
-  if (workspaceResources.length === 0) {
-    resourceEmptyState.hidden = false;
-    return;
-  }
-
-  resourceEmptyState.hidden = true;
-
-  // Display each resource
-  workspaceResources.forEach(function (resource) {
-    const resourceCard = document.createElement("div");
-    resourceCard.classList.add("resource-card");
-
-    const title = document.createElement("h3");
-    title.textContent = resource.title;
-
-    const description = document.createElement("p");
-    description.textContent = resource.description || "No description added.";
-
-    const link = document.createElement("a");
-    link.href = resource.url;
-    link.textContent = "Open Resource ↗";
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-
-    const actions = document.createElement("div");
-actions.classList.add("resource-actions");
-
-const editButton = document.createElement("button");
-editButton.textContent = "Edit";
-editButton.classList.add("edit-resource-button");
-editButton.dataset.id = resource.id;
-editButton.addEventListener("click", function () {
-  editingResourceId = resource.id;
-
-  resourceTitleInput.value = resource.title;
-  resourceUrlInput.value = resource.url;
-  resourceDescriptionInput.value = resource.description;
-
-  resourceModalTitle.textContent = "Edit Resource";
-  resourceModal.querySelector('button[type="submit"]').textContent = "Update Resource";
-  resourceModal.hidden = false;
+// Initialize resource module
+const resourceModule = initResourceModule({
+  resources,
+  resourceGrid,
+  resourceEmptyState,
+  resourceModal,
+  resourceModalTitle,
+  resourceForm,
+  addResourceButton,
+  cancelResourceButton,
+  resourceTitleInput,
+  resourceUrlInput,
+  resourceDescriptionInput,
+  getActiveWorkspaceId: function () {
+    return activeWorkspaceId;
+  },
+  saveResources,
+  updateWorkspaceActivity,
+  showToast
 });
-
-const deleteButton = document.createElement("button");
-deleteButton.textContent = "Delete";
-deleteButton.classList.add("delete-resource-button");
-deleteButton.dataset.id = resource.id;
-
-deleteButton.addEventListener("click", function () {
-  const shouldDelete = confirm(
-    "Are you sure you want to delete this resource?"
-  );
-
-  if (!shouldDelete) {
-    return;
-  }
-
-  const resourceIndex = resources.findIndex(function (item) {
-    return item.id === resource.id;
-  });
-
-  if (resourceIndex !== -1) {
-    resources.splice(resourceIndex, 1);
-    saveResources();
-
-    updateWorkspaceActivity(activeWorkspaceId);
-  }
-showToast("Resource deleted successfully!");
-  renderResources();
-});
-
-actions.append(editButton, deleteButton);
-
-resourceCard.append(title, description, link, actions);
-resourceGrid.appendChild(resourceCard);
-  });
-}
-function renderNotes() {
-  // Get notes belonging to the active workspace
-  const workspaceNotes = notes.filter(function (note) {
-    return note.workspaceId === activeWorkspaceId;
-  });
-
-  // Clear previously displayed note cards
-  notesGrid.innerHTML = "";
-
-  // Show empty state if there are no notes
-  if (workspaceNotes.length === 0) {
-    notesEmptyState.hidden = false;
-    return;
-  }
-
-  notesEmptyState.hidden = true;
-
-  // Display each note
-  workspaceNotes.forEach(function (note) {
-    const noteCard = document.createElement("div");
-    noteCard.classList.add("note-card");
-
-    const title = document.createElement("h3");
-    title.textContent = note.title;
-
-    const content = document.createElement("div");
-    content.classList.add("note-card-content");
-    content.textContent = note.content.replace(/<[^>]*>/g, " ");
-
-    // Create action buttons
-const actions = document.createElement("div");
-actions.classList.add("note-actions");
-
-const editButton = document.createElement("button");
-editButton.textContent = "Edit";
-editButton.classList.add("edit-note-button");
-
-const deleteButton = document.createElement("button");
-deleteButton.textContent = "Delete";
-deleteButton.classList.add("delete-note-button");
-// Delete note
-deleteButton.addEventListener("click", function () {
-  const shouldDelete = confirm(
-    "Are you sure you want to delete this note?"
-  );
-
-  if (!shouldDelete) {
-    return;
-  }
-
-  const noteIndex = notes.findIndex(function (item) {
-    return item.id === note.id;
-  });
-
-  if (noteIndex !== -1) {
-    notes.splice(noteIndex, 1);
-    saveNotes();
-
-    updateWorkspaceActivity(activeWorkspaceId);
-  }
-  showToast("Note deleted successfully!");
-
-  renderNotes();
-});
-
-// Edit note
-editButton.addEventListener("click", function () {
-  editingNoteId = note.id;
-
-  noteTitleInput.value = note.title;
-  noteEditor.innerHTML = note.content;
-
-  noteModalTitle.textContent = "Edit Note";
-  noteModal.querySelector('button[type="submit"]').textContent = "Update Note";
-
-  noteModal.hidden = false;
-});
-
-// Add buttons to card
-actions.append(editButton, deleteButton);
-
-noteCard.append(title, content, actions);
-notesGrid.appendChild(noteCard);
-  });
-}
-// Render tasks inside their respective Kanban columns
-function renderTasks() {
-  // Get tasks belonging to the active workspace
-  const workspaceTasks = tasks.filter(function (task) {
-    return task.workspaceId === activeWorkspaceId;
-  });
-    // Show empty state when there are no tasks
-  tasksEmptyState.hidden = workspaceTasks.length > 0;
-
-  // Clear existing task cards
-  todoTasksContainer.innerHTML = "";
-  inProgressTasksContainer.innerHTML = "";
-  completedTasksContainer.innerHTML = "";
-
-  // Separate tasks by status
-  const todo = workspaceTasks.filter(task => task.status === "todo");
-  const inProgress = workspaceTasks.filter(task => task.status === "in-progress");
-  const completed = workspaceTasks.filter(task => task.status === "completed");
-
-  // Update column counters
-  todoCount.textContent = todo.length;
-  inProgressCount.textContent = inProgress.length;
-  completedCount.textContent = completed.length;
-
-  // Display task cards
-  workspaceTasks.forEach(function (task) {
-    const taskCard = document.createElement("div");
-    taskCard.classList.add("task-card");
-    // Make task card draggable
-taskCard.setAttribute("draggable", "true");
-
-// Store task ID when dragging starts
-taskCard.addEventListener("dragstart", function (event) {
-  event.dataTransfer.setData("text/plain", task.id);
-});
-
-    const title = document.createElement("h4");
-    title.textContent = task.title;
-
-    const description = document.createElement("p");
-    description.textContent = task.description;
-
-    const priority = document.createElement("span");
-    priority.textContent = task.priority;
-    priority.classList.add("task-priority", `priority-${task.priority}`);
-
-    taskCard.appendChild(title);
-
-    if (task.description) {
-      taskCard.appendChild(description);
-    }
-
-    taskCard.appendChild(priority);
-    // Create status dropdown
-const statusSelect = document.createElement("select");
-statusSelect.classList.add("task-status-select");
-
-const statuses = [
-  { value: "todo", label: "To Do" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "completed", label: "Completed" }
-];
-
-// Add dropdown options
-statuses.forEach(function (status) {
-  const option = document.createElement("option");
-  option.value = status.value;
-  option.textContent = status.label;
-  statusSelect.appendChild(option);
-});
-
-// Show the task's current status
-statusSelect.value = task.status;
-
-// Update task status when changed
-statusSelect.addEventListener("change", function () {
-  task.status = statusSelect.value;
-task.updatedAt = new Date().toISOString();
-
-saveTasks();
-updateWorkspaceActivity(task.workspaceId);
-renderTasks();
-showToast("Task status updated successfully!");
-});
-
-taskCard.appendChild(statusSelect);
-
-    if (task.dueDate) {
-  const dueDate = document.createElement("p");
-
-  const formattedDate = new Date(
-    task.dueDate + "T00:00:00"
-  ).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric"
-  });
-
-  dueDate.textContent = `Due: ${formattedDate}`;
-  // Check whether the task is overdue
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-const taskDueDate = new Date(task.dueDate + "T00:00:00");
-
-if (taskDueDate < today && task.status !== "completed") {
-  dueDate.classList.add("task-overdue");
-}
-  taskCard.appendChild(dueDate);
-}
-    // Create Edit button
-const editButton = document.createElement("button");
-editButton.textContent = "Edit";
-editButton.classList.add("edit-task-button");
-
-editButton.addEventListener("click", function () {
-  editingTaskId = task.id;
-
-  // Fill form with existing task details
-  taskTitleInput.value = task.title;
-  taskDescriptionInput.value = task.description;
-  taskPriorityInput.value = task.priority;
-  taskDueDateInput.value = task.dueDate;
-  taskStatusInput.value = task.status;
-
-  // Change modal heading and button
-  taskModalTitle.textContent = "Edit Task";
-  taskSubmitButton.textContent = "Update Task";
-
-  taskModal.hidden = false;
-});
-
-taskCard.appendChild(editButton);
-
-// Create Delete button
-const deleteButton = document.createElement("button");
-deleteButton.textContent = "Delete";
-deleteButton.classList.add("delete-task-button");
-
-deleteButton.addEventListener("click", function () {
-  const shouldDelete = confirm(
-    "Are you sure you want to delete this task?"
-  );
-
-  if (!shouldDelete) {
-    return;
-  }
-
-  const taskIndex = tasks.findIndex(function (item) {
-    return item.id === task.id;
-  });
-
-  if (taskIndex !== -1) {
-    tasks.splice(taskIndex, 1);
-    saveTasks();
-    updateWorkspaceActivity(task.workspaceId);
-  }
-  showToast("Task deleted successfully!");
-
-  renderTasks();
-});
-
-taskCard.appendChild(deleteButton);
-
-    // Place card in the correct column
-    if (task.status === "todo") {
-      todoTasksContainer.appendChild(taskCard);
-    } else if (task.status === "in-progress") {
-      inProgressTasksContainer.appendChild(taskCard);
-    } else if (task.status === "completed") {
-      completedTasksContainer.appendChild(taskCard);
-    }
-  });
-
-}
-// Set up Kanban drop zones once
-const kanbanColumns = document.querySelectorAll(".kanban-column");
-
-kanbanColumns.forEach(function (column) {
-  column.addEventListener("dragover", function (event) {
-    event.preventDefault();
-  });
-
-  column.addEventListener("drop", function (event) {
-    event.preventDefault();
-
-    const taskId = event.dataTransfer.getData("text/plain");
-    const task = tasks.find(function (item) {
-      return item.id === taskId;
-    });
-
-    if (!task || task.workspaceId !== activeWorkspaceId) return;
-
-    task.status = column.dataset.status;
-    task.updatedAt = new Date().toISOString();
-
-    saveTasks();
-updateWorkspaceActivity(task.workspaceId);
-renderTasks();
-    showToast("Task moved successfully!");
-  });
-});
-
 
 // Display previously saved workspaces on page load
 workspaceModule.renderWorkspaces();
