@@ -244,7 +244,6 @@ if (duplicateWorkspace) {
   // Save workspaces in browser storage
 saveWorkspaces();
 
-console.log("All Workspaces:", workspaces);
 renderWorkspaces();
 renderContinueWorking();
 showToast(

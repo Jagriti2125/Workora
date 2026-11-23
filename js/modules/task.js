@@ -116,8 +116,6 @@ taskForm.addEventListener("submit", function (event) {
   taskForm.reset();
   taskModal.hidden = true;
   
-
-  // We'll connect renderTasks() after moving the renderer.
 });
 
 // Render tasks inside their respective Kanban columns

@@ -98,7 +98,6 @@ resourceForm.addEventListener("submit", function (event) {
   updateWorkspaceActivity(getActiveWorkspaceId());
   renderResources();
 
-  // We'll connect rendering here after moving the renderer.
   showToast(
     isEditingResource
       ? "Resource updated successfully!"

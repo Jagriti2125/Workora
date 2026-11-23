@@ -6,7 +6,6 @@ import { initTaskModule } from "./modules/task.js";
 import { showToast } from "./utils/notifications.js";
 import { formatDate } from "./utils/date.js";
 
-console.log("Workora initialized!");
 
 // Load previously saved workspaces
 
